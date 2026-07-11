@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import api from '../api';
+import EmptyState from '../components/EmptyState';
+import LoadingState from '../components/LoadingState';
 
 const tabs = ['My Listings', 'My Requests', 'Incoming Requests'];
 const inputClass = 'w-full rounded border border-slate-600 bg-slate-900 p-2 text-white';
 
-function Empty({ children }) { return <p className="rounded border border-dashed border-slate-700 p-6 text-center text-slate-400">{children}</p>; }
 function Status({ value }) { return <span className="rounded bg-slate-700 px-2 py-1 text-xs capitalize text-slate-200">{value}</span>; }
 
 export default function DashboardPage() {
@@ -39,7 +40,7 @@ export default function DashboardPage() {
   }
 
   function listingContent() {
-    if (!data.listings.length) return <Empty>You have not created any listings yet.</Empty>;
+    if (!data.listings.length) return <EmptyState>You have not created any listings yet.</EmptyState>;
     return <div className="space-y-3">{data.listings.map((item) => <div key={item.id} className="rounded-lg border border-slate-700 bg-slate-800 p-4">
       {editing?.id === item.id ? <form onSubmit={saveListing} className="grid gap-3 md:grid-cols-2">
         <input required className={inputClass} value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
@@ -50,8 +51,8 @@ export default function DashboardPage() {
     </div>)}</div>;
   }
   function requestsContent(requests, incoming) {
-    if (!requests.length) return <Empty>{incoming ? 'No one has requested one of your listings.' : 'You have not made any borrowing requests.'}</Empty>;
+    if (!requests.length) return <EmptyState>{incoming ? 'No one has requested one of your listings.' : 'You have not made any borrowing requests.'}</EmptyState>;
     return <div className="space-y-3">{requests.map((request) => <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-800 p-4"><div><h2 className="font-semibold">{request.title}</h2>{incoming && <p className="mt-1 text-sm text-slate-400">Requested by {request.requester_name || `user #${request.requester_id}`}</p>}<p className="mt-1 text-sm text-slate-400">Status: <Status value={request.status} /></p></div>{incoming && <div className="flex gap-2">{request.status === 'pending' && <><button disabled={busyId === request.id} onClick={() => updateRequest(request.id, 'approve')} className="rounded bg-emerald-700 px-3 py-2 text-sm disabled:opacity-50">Approve</button><button disabled={busyId === request.id} onClick={() => updateRequest(request.id, 'reject')} className="rounded bg-red-900 px-3 py-2 text-sm disabled:opacity-50">Reject</button></>}{request.status === 'approved' && <button disabled={busyId === request.id} onClick={() => updateRequest(request.id, 'return')} className="rounded bg-indigo-600 px-3 py-2 text-sm disabled:opacity-50">Mark returned</button>}</div>}</div>)}</div>;
   }
-  return <div><h1 className="text-3xl font-bold">Dashboard</h1><div className="mt-6 flex gap-2 border-b border-slate-700">{tabs.map((tab) => <button key={tab} onClick={() => setActiveTab(tab)} className={`px-3 py-3 text-sm ${activeTab === tab ? 'border-b-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white'}`}>{tab}</button>)}</div>{error && <p className="mt-5 rounded bg-red-950 p-3 text-sm text-red-300">{error}</p>}<section className="mt-5">{loading ? <p className="text-slate-400">Loading dashboard...</p> : activeTab === 'My Listings' ? listingContent() : activeTab === 'My Requests' ? requestsContent(data.mine, false) : requestsContent(data.incoming, true)}</section></div>;
+  return <div><h1 className="text-3xl font-bold">Dashboard</h1><p className="mt-1 text-sm text-slate-400">Manage your listings and lending activity.</p><div className="mt-6 -mx-4 overflow-x-auto border-b border-slate-700 px-4 sm:mx-0 sm:px-0"><div className="flex min-w-max gap-2">{tabs.map((tab) => <button key={tab} onClick={() => setActiveTab(tab)} className={`px-3 py-3 text-sm ${activeTab === tab ? 'border-b-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white'}`}>{tab}</button>)}</div></div>{error && <p className="mt-5 rounded border border-red-900 bg-red-950 p-3 text-sm text-red-300">{error}</p>}<section className="mt-5">{loading ? <LoadingState label="Loading dashboard..." /> : activeTab === 'My Listings' ? listingContent() : activeTab === 'My Requests' ? requestsContent(data.mine, false) : requestsContent(data.incoming, true)}</section></div>;
 }
