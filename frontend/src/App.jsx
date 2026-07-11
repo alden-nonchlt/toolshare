@@ -27,8 +27,8 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-8">
-      <h1 className="text-3xl font-bold mb-6">ToolShare</h1>
+    <div>
+      <h1 className="text-3xl font-bold mb-6">Browse tools</h1>
 
       <input
         type="text"
