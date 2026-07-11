@@ -38,7 +38,7 @@ router.post('/signup', async (req, res) => {
     { expiresIn: '7d' }
   );
 
-  res.status(201).json({ token, user: { id: result.lastInsertRowid, name, email } });
+  res.status(201).json({ token, user: { id: result.lastInsertRowid, name, email, role: 'user' } });
 });
 
 router.post('/login', async (req, res) => {
@@ -52,6 +52,9 @@ router.post('/login', async (req, res) => {
   if (!user) {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
+  if (!user.is_active) {
+    return res.status(403).json({ error: 'This account has been deactivated' });
+  }
 
   const match = await bcrypt.compare(password, user.password_hash);
   if (!match) {
@@ -64,7 +67,7 @@ router.post('/login', async (req, res) => {
     { expiresIn: '7d' }
   );
 
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 });
 
 module.exports = router;

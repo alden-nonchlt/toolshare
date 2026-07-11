@@ -40,8 +40,9 @@ router.get('/mine', requireAuth, (req, res) => {
 // GET requests on my listings
 router.get('/incoming', requireAuth, (req, res) => {
   const requests = db.prepare(
-    `SELECT r.*, l.title, l.photo_url FROM requests r
+    `SELECT r.*, l.title, l.photo_url, u.name AS requester_name, u.email AS requester_email FROM requests r
      JOIN listings l ON r.listing_id = l.id
+     JOIN users u ON r.requester_id = u.id
      WHERE l.owner_id = ?`
   ).all(req.user.id);
   res.json(requests);

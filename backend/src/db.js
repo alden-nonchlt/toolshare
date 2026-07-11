@@ -44,4 +44,11 @@ db.exec(`
   );
 `);
 
+// Lightweight migration for databases created before account deactivation
+// was introduced.
+const userColumns = db.prepare('PRAGMA table_info(users)').all();
+if (!userColumns.some((column) => column.name === 'is_active')) {
+  db.exec('ALTER TABLE users ADD COLUMN is_active INTEGER DEFAULT 1');
+}
+
 module.exports = db;

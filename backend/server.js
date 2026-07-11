@@ -5,6 +5,7 @@ const db = require('./src/db');
 const authRoutes = require('./src/routes/auth');
 const listingRoutes = require('./src/routes/listings');
 const requestRoutes = require('./src/routes/requests');
+const adminRoutes = require('./src/routes/admin');
 
 const app = express();
 app.use(cors());
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/requests', requestRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get();

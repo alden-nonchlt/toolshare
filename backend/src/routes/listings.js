@@ -23,6 +23,14 @@ router.get('/', (req, res) => {
   res.json(listings);
 });
 
+// GET listings owned by the current user
+router.get('/mine', requireAuth, (req, res) => {
+  const listings = db.prepare(
+    'SELECT * FROM listings WHERE owner_id = ? ORDER BY created_at DESC'
+  ).all(req.user.id);
+  res.json(listings);
+});
+
 // GET single listing (public)
 router.get('/:id', (req, res) => {
   const listing = db.prepare('SELECT * FROM listings WHERE id = ?').get(req.params.id);
